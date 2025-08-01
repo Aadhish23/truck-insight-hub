@@ -1,99 +1,175 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import React, { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Home, Truck, FileText, Settings, User, LogOut } from "lucide-react";
 import {
-  LayoutDashboard,
-  Truck,
-  FileText,
-  Settings,
-  Menu,
-  X
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Trucks", href: "/trucks", icon: Truck },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "Settings", href: "/settings", icon: Settings },
+interface SidebarProps {
+  collapsed: boolean;
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const navItems = [
+  { name: "Dashboard", path: "/", icon: Home },
+  { name: "Truck Overview", path: "/trucks", icon: Truck },
+  { name: "Reports", path: "/reports", icon: FileText },
+  { name: "Settings", path: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement).closest("a")
+      ) {
+        setCollapsed(true);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCollapsed(true);
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [setCollapsed]);
+
+  useEffect(() => {
+    setCollapsed(true);
+  }, [location.pathname, setCollapsed]);
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {!collapsed && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden" />
-      )}
-      
-      {/* Sidebar */}
-      <div className={cn(
-        "fixed left-0 top-0 z-50 h-full bg-card border-r border-border transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
-      )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          {!collapsed && (
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Truck className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
-                MoniTruck
-              </span>
-            </div>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-2"
-          >
-            {collapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-          </Button>
+    <TooltipProvider>
+      <aside
+        ref={sidebarRef}
+        role="navigation"
+        aria-label="Sidebar navigation"
+        aria-expanded={!collapsed}
+        className={`h-screen sticky top-0 z-30 shadow-xl flex flex-col justify-between transition-all border-r
+          ${collapsed ? "w-[72px]" : "w-64"}
+          bg-white border-blue-100`}
+        style={{ transition: "all 0.5s cubic-bezier(.77,0,.18,1)" }}
+      >
+        <div>
+          {/* Logo & Branding */}
+          <div className="flex items-center px-4 py-5 border-b border-blue-100">
+            <span className="bg-blue-600 rounded-full p-2">
+              <User className="text-white" size={28} />
+            </span>
+            <span
+              className={`ml-3 text-xl font-bold tracking-wide text-blue-900 transition-all duration-300 ${
+                collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+              }`}
+              style={{ letterSpacing: "0.05em" }}
+            >
+              MoniTruck
+            </span>
+          </div>
+
+          {/* Navigation */}
+          <nav className="mt-4 flex flex-col gap-1">
+            {navItems.map(({ name, path, icon: Icon }) => {
+              const isActive = location.pathname === path;
+              return (
+                <Tooltip key={name}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={path}
+                      className={`group mx-2 px-4 py-2 rounded-lg flex items-center gap-3 transition-all
+                        ${
+                          isActive
+                            ? "bg-blue-50 text-blue-700 font-semibold shadow"
+                            : "text-blue-900 hover:bg-blue-50"
+                        }
+                      `}
+                    >
+                      <Icon size={22} className="shrink-0" />
+                      <span
+                        className={`text-base transition-all duration-300 ${
+                          collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                        }`}
+                      >
+                        {name}
+                      </span>
+                    </Link>
+                  </TooltipTrigger>
+                  {collapsed && (
+                    <TooltipContent side="right" className="capitalize">
+                      {name}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            
-            return (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  collapsed && "justify-center"
-                )}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                {!collapsed && <span>{item.name}</span>}
-              </NavLink>
-            );
-          })}
-        </nav>
-
-        {/* Footer */}
-        {!collapsed && (
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="p-3 bg-gradient-primary rounded-lg text-white text-xs">
-              <div className="font-medium">MoniTruck Pro</div>
-              <div className="opacity-90">Fleet Management System</div>
+        {/* Profile + Logout */}
+        <div className="px-4 pb-6 flex flex-col gap-2">
+          <div
+            className={`flex items-center gap-3 mb-2 transition-all duration-300 ${
+              collapsed ? "justify-center" : ""
+            }`}
+          >
+            <div className="bg-blue-100 p-2 rounded-full">
+              <User className="text-blue-700" size={22} />
+            </div>
+            <div
+              className={`transition-all duration-300 ${
+                collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+              }`}
+            >
+              <div className="text-sm font-semibold text-blue-900">Alex Mathews</div>
+              <div className="text-xs text-blue-400">Fleet Manager</div>
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Main content spacer */}
-      <div className={cn("transition-all duration-300", collapsed ? "ml-16" : "ml-64")} />
-    </>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="flex items-center justify-center gap-2 w-full py-2 text-sm rounded-lg border border-blue-100 text-blue-700 hover:bg-blue-50 transition-all"
+                type="button"
+                aria-label="Logout"
+                onClick={() => alert("Logged out!")}
+              >
+                <LogOut size={18} />
+                <span
+                  className={`transition-all duration-300 ${
+                    collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                  }`}
+                >
+                  Logout
+                </span>
+              </button>
+            </TooltipTrigger>
+            {collapsed && <TooltipContent side="right">Logout</TooltipContent>}
+          </Tooltip>
+
+          <div
+            className={`mt-2 text-xs text-blue-300 text-center transition-all duration-300 ${
+              collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+            }`}
+            style={{ letterSpacing: "0.05em" }}
+          >
+            © 2025 MoniTruck
+          </div>
+        </div>
+      </aside>
+    </TooltipProvider>
   );
-}
+};
+
+export default Sidebar;

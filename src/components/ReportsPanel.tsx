@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
@@ -14,9 +24,14 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
 } from "recharts";
-import { TrendingUp, AlertTriangle, Fuel, Calendar } from "lucide-react";
+import {
+  TrendingUp,
+  AlertTriangle,
+  Fuel,
+  Calendar,
+} from "lucide-react";
 
 const fuelData = [
   { name: "Mon", weekly: 450, monthly: 1800 },
@@ -25,19 +40,19 @@ const fuelData = [
   { name: "Thu", weekly: 600, monthly: 2400 },
   { name: "Fri", weekly: 550, monthly: 2200 },
   { name: "Sat", weekly: 380, monthly: 1500 },
-  { name: "Sun", weekly: 320, monthly: 1300 }
+  { name: "Sun", weekly: 320, monthly: 1300 },
 ];
 
 const drowsinessData = [
   { name: "Week 1", incidents: 12 },
   { name: "Week 2", incidents: 8 },
   { name: "Week 3", incidents: 15 },
-  { name: "Week 4", incidents: 6 }
+  { name: "Week 4", incidents: 6 },
 ];
 
 const severityData = [
   { name: "Drowsy", value: 65, color: "hsl(var(--warning))" },
-  { name: "Unresponsive", value: 35, color: "hsl(var(--destructive))" }
+  { name: "Unresponsive", value: 35, color: "hsl(var(--destructive))" },
 ];
 
 export function ReportsPanel() {
@@ -106,44 +121,39 @@ export function ReportsPanel() {
           <TabsTrigger value="severity">Alert Severity</TabsTrigger>
         </TabsList>
 
+        {/* Fuel Chart */}
         <TabsContent value="fuel">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Fuel Consumption Trends</CardTitle>
-                <div className="flex space-x-2">
-                  <Badge 
-                    variant={period === "weekly" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setPeriod("weekly")}
+              <CardTitle>Fuel Consumption Trends</CardTitle>
+              <div className="flex gap-2 mt-2">
+                {["weekly", "monthly"].map((key) => (
+                  <Badge
+                    key={key}
+                    variant={period === key ? "default" : "outline"}
+                    className="cursor-pointer text-xs"
+                    onClick={() => setPeriod(key as "weekly" | "monthly")}
                   >
-                    Weekly
+                    {key === "weekly" ? "Weekly" : "Monthly"}
                   </Badge>
-                  <Badge 
-                    variant={period === "monthly" ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setPeriod("monthly")}
-                  >
-                    Monthly
-                  </Badge>
-                </div>
+                ))}
               </div>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={fuelData}>
-                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip 
-                    contentStyle={{ 
+                  <Tooltip
+                    contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px"
+                      borderRadius: "8px",
                     }}
                   />
-                  <Bar 
-                    dataKey={period} 
+                  <Bar
+                    dataKey={period}
                     fill="hsl(var(--primary))"
                     radius={[4, 4, 0, 0]}
                   />
@@ -153,6 +163,7 @@ export function ReportsPanel() {
           </Card>
         </TabsContent>
 
+        {/* Drowsiness Chart */}
         <TabsContent value="drowsiness">
           <Card>
             <CardHeader>
@@ -161,22 +172,26 @@ export function ReportsPanel() {
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={drowsinessData}>
-                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip 
-                    contentStyle={{ 
+                  <Tooltip
+                    contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px"
+                      borderRadius: "8px",
                     }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="incidents" 
+                  <Line
+                    type="monotone"
+                    dataKey="incidents"
                     stroke="hsl(var(--warning))"
                     strokeWidth={3}
-                    dot={{ fill: "hsl(var(--warning))", strokeWidth: 2, r: 6 }}
+                    dot={{
+                      fill: "hsl(var(--warning))",
+                      strokeWidth: 2,
+                      r: 6,
+                    }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -184,6 +199,7 @@ export function ReportsPanel() {
           </Card>
         </TabsContent>
 
+        {/* Severity Chart */}
         <TabsContent value="severity">
           <Card>
             <CardHeader>
@@ -205,11 +221,11 @@ export function ReportsPanel() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
+                  <Tooltip
+                    contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px"
+                      borderRadius: "8px",
                     }}
                   />
                 </PieChart>

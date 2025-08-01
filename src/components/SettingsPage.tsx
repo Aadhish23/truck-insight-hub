@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card, CardHeader, CardTitle, CardDescription, CardContent
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
@@ -7,21 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Bell, 
-  Mail, 
-  MessageSquare, 
-  Fuel, 
-  Eye, 
-  Save,
-  AlertTriangle,
-  Settings as SettingsIcon
+import {
+  Bell, Mail, Fuel, Eye, Save, AlertTriangle, Settings as SettingsIcon
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface NotificationSettings {
   emailAlerts: boolean;
-  smsAlerts: boolean;
   fuelThreshold: number;
   drowsinesssensitivity: number;
   alertFrequency: number;
@@ -29,21 +23,13 @@ interface NotificationSettings {
 
 export function SettingsPage() {
   const { toast } = useToast();
+
   const [settings, setSettings] = useState<NotificationSettings>({
     emailAlerts: true,
-    smsAlerts: false,
     fuelThreshold: 20,
     drowsinesssensitivity: 75,
     alertFrequency: 5
   });
-
-  const handleSave = () => {
-    // Simulate saving settings
-    toast({
-      title: "Settings saved",
-      description: "Your notification preferences have been updated successfully.",
-    });
-  };
 
   const updateSetting = <K extends keyof NotificationSettings>(
     key: K,
@@ -52,13 +38,20 @@ export function SettingsPage() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleSave = () => {
+    toast({
+      title: "Settings saved",
+      description: "Your notification preferences have been updated successfully.",
+    });
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-2 mb-6">
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      {/* Page Header */}
+      <header className="flex items-center space-x-3">
         <SettingsIcon className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">MoniTruck Settings</h1>
-      </div>
+        <h1 className="text-2xl font-bold tracking-tight">MoniTruck Settings</h1>
+      </header>
 
       {/* Notification Preferences */}
       <Card>
@@ -67,13 +60,10 @@ export function SettingsPage() {
             <Bell className="h-5 w-5 text-primary" />
             <span>Notification Preferences</span>
           </CardTitle>
-          <CardDescription>
-            Configure how you want to receive alerts and notifications
-          </CardDescription>
+          <CardDescription>Configure how you want to receive alerts</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Email Alerts */}
-          <div className="flex items-center justify-between">
+        <CardContent>
+          <div className="flex items-center justify-between py-4">
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-muted-foreground" />
               <div>
@@ -81,36 +71,16 @@ export function SettingsPage() {
                   Email Alerts
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  Receive alerts via email
+                  Receive system alerts via registered email
                 </p>
               </div>
             </div>
             <Switch
               id="email-alerts"
               checked={settings.emailAlerts}
-              onCheckedChange={(checked) => updateSetting("emailAlerts", checked)}
-            />
-          </div>
-
-          <Separator />
-
-          {/* SMS Alerts */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <MessageSquare className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <Label htmlFor="sms-alerts" className="text-sm font-medium">
-                  SMS Alerts
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive critical alerts via SMS
-                </p>
-              </div>
-            </div>
-            <Switch
-              id="sms-alerts"
-              checked={settings.smsAlerts}
-              onCheckedChange={(checked) => updateSetting("smsAlerts", checked)}
+              onCheckedChange={(checked) =>
+                updateSetting("emailAlerts", checked)
+              }
             />
           </div>
         </CardContent>
@@ -124,11 +94,11 @@ export function SettingsPage() {
             <span>Alert Thresholds</span>
           </CardTitle>
           <CardDescription>
-            Set sensitivity levels and thresholds for various alerts
+            Adjust thresholds and sensitivity settings for your fleet
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
-          {/* Fuel Level Threshold */}
+          {/* Fuel Threshold */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -136,24 +106,21 @@ export function SettingsPage() {
                 <div>
                   <Label className="text-sm font-medium">Fuel Level Alert</Label>
                   <p className="text-sm text-muted-foreground">
-                    Alert when fuel drops below this percentage
+                    Trigger alert when fuel drops below this percentage
                   </p>
                 </div>
               </div>
-              <Badge variant="outline" className="text-sm">
-                {settings.fuelThreshold}%
-              </Badge>
+              <Badge variant="outline">{settings.fuelThreshold}%</Badge>
             </div>
-            <div className="px-8">
+            <div className="px-4">
               <Slider
                 value={[settings.fuelThreshold]}
                 onValueChange={(value) => updateSetting("fuelThreshold", value[0])}
-                max={50}
                 min={5}
+                max={50}
                 step={5}
-                className="w-full"
               />
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
                 <span>5%</span>
                 <span>50%</span>
               </div>
@@ -162,7 +129,7 @@ export function SettingsPage() {
 
           <Separator />
 
-          {/* Drowsiness Detection Sensitivity */}
+          {/* Drowsiness Sensitivity */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -170,24 +137,23 @@ export function SettingsPage() {
                 <div>
                   <Label className="text-sm font-medium">Drowsiness Detection</Label>
                   <p className="text-sm text-muted-foreground">
-                    AI model sensitivity for detecting drowsiness
+                    Model sensitivity for detecting driver fatigue
                   </p>
                 </div>
               </div>
-              <Badge variant="outline" className="text-sm">
-                {settings.drowsinesssensitivity}%
-              </Badge>
+              <Badge variant="outline">{settings.drowsinesssensitivity}%</Badge>
             </div>
-            <div className="px-8">
+            <div className="px-4">
               <Slider
                 value={[settings.drowsinesssensitivity]}
-                onValueChange={(value) => updateSetting("drowsinesssensitivity", value[0])}
-                max={100}
+                onValueChange={(value) =>
+                  updateSetting("drowsinesssensitivity", value[0])
+                }
                 min={25}
+                max={100}
                 step={5}
-                className="w-full"
               />
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
                 <span>Low (25%)</span>
                 <span>High (100%)</span>
               </div>
@@ -203,14 +169,16 @@ export function SettingsPage() {
               <div className="flex-1">
                 <Label className="text-sm font-medium">Alert Frequency</Label>
                 <p className="text-sm text-muted-foreground">
-                  Minimum minutes between repeated alerts
+                  Minimum time gap (minutes) between repeated alerts
                 </p>
               </div>
-              <div className="w-20">
+              <div className="w-24">
                 <Input
                   type="number"
                   value={settings.alertFrequency}
-                  onChange={(e) => updateSetting("alertFrequency", parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    updateSetting("alertFrequency", parseInt(e.target.value) || 1)
+                  }
                   min={1}
                   max={60}
                   className="text-center"
@@ -222,12 +190,12 @@ export function SettingsPage() {
       </Card>
 
       {/* Save Button */}
-      <div className="flex justify-end pt-4">
+      <div className="flex justify-end">
         <Button onClick={handleSave} className="flex items-center space-x-2">
           <Save className="h-4 w-4" />
           <span>Save Settings</span>
         </Button>
       </div>
-    </div>
+    </section>
   );
 }

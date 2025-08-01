@@ -18,7 +18,7 @@ const AlertsPanel = () => {
     {
       id: 2,
       type: "fuel",
-      driver: "Sarah Johnson", 
+      driver: "Sarah Johnson",
       vehicle: "TRK-004",
       message: "Low fuel level - 15% remaining",
       timestamp: "8 min ago",
@@ -37,74 +37,107 @@ const AlertsPanel = () => {
     },
   ];
 
-  const getSeverityStyles = (severity: string) => {
+  // Dynamic background color for each alert card
+  const getBgColor = (severity: string) => {
     switch (severity) {
       case "high":
-        return "bg-destructive text-destructive-foreground";
+        return "bg-red-100 hover:bg-red-200";
       case "medium":
-        return "bg-accent text-accent-foreground";
+        return "bg-yellow-100 hover:bg-yellow-200";
       case "low":
-        return "bg-muted text-muted-foreground";
+        return "bg-blue-100 hover:bg-blue-200";
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-gray-100 hover:bg-gray-200";
+    }
+  };
+
+  const getBorderColor = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "border-red-200";
+      case "medium":
+        return "border-yellow-200";
+      case "low":
+        return "border-blue-200";
+      default:
+        return "border-gray-200";
     }
   };
 
   const getIconStyles = (severity: string) => {
     switch (severity) {
       case "high":
-        return "text-destructive bg-destructive/10";
+        return "text-red-600 bg-red-100";
       case "medium":
-        return "text-accent bg-accent/10";
+        return "text-yellow-700 bg-yellow-100";
       case "low":
-        return "text-muted-foreground bg-muted";
+        return "text-blue-700 bg-blue-100";
       default:
-        return "text-muted-foreground bg-muted";
+        return "text-gray-500 bg-gray-100";
     }
   };
 
   return (
-    <Card>
+    <Card className="shadow-lg border-2 border-blue-100 rounded-2xl bg-gradient-to-br from-white via-blue-50 to-blue-100">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          <AlertTriangle className="h-5 w-5 text-accent" />
-          <span>Active Alerts</span>
-          <Badge variant="secondary" className="ml-auto">
+          <AlertTriangle className="h-5 w-5 text-yellow-500 animate-bounce" />
+          <span className="font-bold text-lg text-blue-900">Active Alerts</span>
+          <Badge variant="secondary" className="ml-auto bg-blue-200 text-blue-800 font-semibold">
             {alerts.length}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {alerts.length === 0 && (
+          <div className="text-center text-blue-400 py-8">
+            <AlertTriangle className="mx-auto mb-2 h-8 w-8" />
+            <span className="font-medium">No active alerts 🎉</span>
+          </div>
+        )}
         {alerts.map((alert) => (
           <div
             key={alert.id}
-            className="flex items-start space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+            className={`
+              flex items-start space-x-3 p-4 rounded-xl border transition-all duration-200 shadow-sm bg-white/80
+              ${getBgColor(alert.severity)} ${getBorderColor(alert.severity)}
+              hover:scale-[1.03] hover:shadow-lg cursor-pointer
+            `}
+            style={{
+              transition: "background 0.2s, transform 0.2s, box-shadow 0.2s",
+            }}
           >
-            <div className={`p-2 rounded-lg ${getIconStyles(alert.severity)}`}>
-              <alert.icon className="h-4 w-4" />
+            <div className={`p-2 rounded-lg shadow ${getIconStyles(alert.severity)}`}>
+              <alert.icon className="h-5 w-5" />
             </div>
-            
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <Badge className={getSeverityStyles(alert.severity)}>
+                <Badge className={`border font-semibold ${getBorderColor(alert.severity)}`}>
                   {alert.severity.toUpperCase()}
                 </Badge>
-                <span className="text-sm font-medium">{alert.vehicle}</span>
+                <span className="text-sm font-semibold text-blue-900">{alert.vehicle}</span>
               </div>
-              <p className="text-sm text-foreground">{alert.message}</p>
+              <p className="text-sm text-blue-900 font-medium">{alert.message}</p>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-blue-400">
                   {alert.driver} • {alert.timestamp}
                 </span>
-                <Button size="sm" variant="outline" className="h-7 text-xs">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-100"
+                >
                   View Details
                 </Button>
               </div>
             </div>
           </div>
         ))}
-        
-        <Button variant="outline" className="w-full" size="sm">
+        <Button
+          variant="outline"
+          className="w-full mt-2 border-blue-200 text-blue-700 font-semibold hover:bg-blue-100"
+          size="sm"
+        >
           View All Alerts
         </Button>
       </CardContent>
