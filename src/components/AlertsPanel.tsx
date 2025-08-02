@@ -37,108 +37,103 @@ const AlertsPanel = () => {
     },
   ];
 
-  // Dynamic background color for each alert card
-  const getBgColor = (severity: string) => {
+  const getSeverityConfig = (severity: string) => {
     switch (severity) {
       case "high":
-        return "bg-red-100 hover:bg-red-200";
+        return {
+          bgClass: "glass-card border-2 border-destructive/50 hover:border-destructive hover:shadow-[0_0_20px_hsl(var(--destructive)/0.3)]",
+          iconClass: "text-destructive bg-destructive/10 shadow-[0_0_10px_hsl(var(--destructive)/0.3)]",
+          badgeClass: "bg-gradient-to-r from-destructive to-red-500 text-destructive-foreground",
+        };
       case "medium":
-        return "bg-yellow-100 hover:bg-yellow-200";
+        return {
+          bgClass: "glass-card border-2 border-warning/50 hover:border-warning hover:shadow-[0_0_20px_hsl(var(--warning)/0.3)]",
+          iconClass: "text-warning bg-warning/10 shadow-[0_0_10px_hsl(var(--warning)/0.3)]",
+          badgeClass: "bg-gradient-to-r from-warning to-yellow-400 text-warning-foreground",
+        };
       case "low":
-        return "bg-blue-100 hover:bg-blue-200";
+        return {
+          bgClass: "glass-card border-2 border-primary/50 hover:border-primary hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)]",
+          iconClass: "text-primary bg-primary/10 shadow-[0_0_10px_hsl(var(--primary)/0.3)]",
+          badgeClass: "bg-gradient-to-r from-primary to-blue-400 text-primary-foreground",
+        };
       default:
-        return "bg-gray-100 hover:bg-gray-200";
-    }
-  };
-
-  const getBorderColor = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "border-red-200";
-      case "medium":
-        return "border-yellow-200";
-      case "low":
-        return "border-blue-200";
-      default:
-        return "border-gray-200";
-    }
-  };
-
-  const getIconStyles = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "text-red-600 bg-red-100";
-      case "medium":
-        return "text-yellow-700 bg-yellow-100";
-      case "low":
-        return "text-blue-700 bg-blue-100";
-      default:
-        return "text-gray-500 bg-gray-100";
+        return {
+          bgClass: "glass-card border-2 border-muted/50 hover:border-muted",
+          iconClass: "text-muted-foreground bg-muted/10",
+          badgeClass: "bg-gradient-to-r from-muted to-gray-400 text-muted-foreground",
+        };
     }
   };
 
   return (
-    <Card className="shadow-lg border-2 border-blue-100 rounded-2xl bg-gradient-to-br from-white via-blue-50 to-blue-100">
+    <Card className="glass-card border-2 border-accent/30 hover:border-accent/60 transition-all duration-500">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <AlertTriangle className="h-5 w-5 text-yellow-500 animate-bounce" />
-          <span className="font-bold text-lg text-blue-900">Active Alerts</span>
-          <Badge variant="secondary" className="ml-auto bg-blue-200 text-blue-800 font-semibold">
+        <CardTitle className="flex items-center space-x-3">
+          <div className="p-2 glass rounded-xl">
+            <AlertTriangle className="h-6 w-6 text-accent animate-pulse" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+              THREAT MATRIX
+            </h3>
+            <p className="text-sm text-muted-foreground">Real-time monitoring</p>
+          </div>
+          <Badge className="bg-gradient-to-r from-accent to-cyan-400 text-accent-foreground px-3 py-1 font-bold">
             {alerts.length}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {alerts.length === 0 && (
-          <div className="text-center text-blue-400 py-8">
-            <AlertTriangle className="mx-auto mb-2 h-8 w-8" />
-            <span className="font-medium">No active alerts 🎉</span>
+          <div className="text-center py-12 space-y-4">
+            <div className="glass rounded-full p-6 w-fit mx-auto">
+              <AlertTriangle className="h-12 w-12 text-success" />
+            </div>
+            <div>
+              <h4 className="font-bold text-success text-lg">All Systems Operational</h4>
+              <p className="text-muted-foreground">No active threats detected</p>
+            </div>
           </div>
         )}
-        {alerts.map((alert) => (
-          <div
-            key={alert.id}
-            className={`
-              flex items-start space-x-3 p-4 rounded-xl border transition-all duration-200 shadow-sm bg-white/80
-              ${getBgColor(alert.severity)} ${getBorderColor(alert.severity)}
-              hover:scale-[1.03] hover:shadow-lg cursor-pointer
-            `}
-            style={{
-              transition: "background 0.2s, transform 0.2s, box-shadow 0.2s",
-            }}
-          >
-            <div className={`p-2 rounded-lg shadow ${getIconStyles(alert.severity)}`}>
-              <alert.icon className="h-5 w-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
-                <Badge className={`border font-semibold ${getBorderColor(alert.severity)}`}>
-                  {alert.severity.toUpperCase()}
-                </Badge>
-                <span className="text-sm font-semibold text-blue-900">{alert.vehicle}</span>
-              </div>
-              <p className="text-sm text-blue-900 font-medium">{alert.message}</p>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-blue-400">
-                  {alert.driver} • {alert.timestamp}
-                </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-100"
-                >
-                  View Details
-                </Button>
+        {alerts.map((alert) => {
+          const config = getSeverityConfig(alert.severity);
+          return (
+            <div
+              key={alert.id}
+              className={`
+                ${config.bgClass} p-5 rounded-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group
+              `}
+            >
+              <div className="flex items-start space-x-4">
+                <div className={`p-3 rounded-2xl ${config.iconClass} group-hover:scale-110 transition-all duration-300`}>
+                  <alert.icon className="h-6 w-6" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge className={`${config.badgeClass} px-3 py-1 font-bold text-xs tracking-wider rounded-lg`}>
+                      {alert.severity.toUpperCase()}
+                    </Badge>
+                    <span className="text-sm font-bold text-foreground bg-muted/30 px-2 py-1 rounded">
+                      {alert.vehicle}
+                    </span>
+                  </div>
+                  <p className="text-foreground font-medium leading-relaxed">{alert.message}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {alert.driver} • {alert.timestamp}
+                    </span>
+                    <Button variant="cyber" size="sm" className="h-8 text-xs">
+                      ANALYZE
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-        <Button
-          variant="outline"
-          className="w-full mt-2 border-blue-200 text-blue-700 font-semibold hover:bg-blue-100"
-          size="sm"
-        >
-          View All Alerts
+          );
+        })}
+        <Button variant="neon" className="w-full mt-6" size="lg">
+          ACCESS FULL THREAT LOG
         </Button>
       </CardContent>
     </Card>

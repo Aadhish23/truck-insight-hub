@@ -1,11 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { User } from "lucide-react";
-
-// Enhanced fonts for a professional look
-const nameFont = { fontFamily: "'Montserrat', 'Segoe UI', Arial, sans-serif", letterSpacing: "0.02em" };
-const statusFont = { fontFamily: "'Roboto Slab', 'Georgia', serif", fontWeight: 700, letterSpacing: "0.01em" };
-const detailFont = { fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif" };
+import { User, Zap, AlertTriangle } from "lucide-react";
 
 interface DriverStatusCardProps {
   driverName: string;
@@ -15,28 +10,28 @@ interface DriverStatusCardProps {
 
 const statusConfig = {
   awake: {
-    label: "Awake",
-    emoji: "🟢",
+    label: "ONLINE",
+    icon: Zap,
     variant: "default" as const,
-    bgClass: "bg-gradient-to-br from-green-50 via-green-100 to-green-200 border-green-200",
-    badgeClass: "bg-green-100 text-green-700 border-green-200",
-    dot: "bg-green-500",
+    cardClass: "glass-card border-2 border-success/50 hover:border-success hover:shadow-[0_0_30px_hsl(var(--success)/0.3)]",
+    badgeClass: "bg-gradient-to-r from-success to-green-400 text-success-foreground",
+    glowClass: "shadow-[0_0_20px_hsl(var(--success)/0.5)]",
   },
   drowsy: {
-    label: "Drowsy",
-    emoji: "🟠",
+    label: "ALERT",
+    icon: AlertTriangle,
     variant: "secondary" as const,
-    bgClass: "bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 border-yellow-200",
-    badgeClass: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    dot: "bg-yellow-500",
+    cardClass: "glass-card border-2 border-warning/50 hover:border-warning hover:shadow-[0_0_30px_hsl(var(--warning)/0.3)]",
+    badgeClass: "bg-gradient-to-r from-warning to-yellow-400 text-warning-foreground",
+    glowClass: "shadow-[0_0_20px_hsl(var(--warning)/0.5)]",
   },
   unresponsive: {
-    label: "Unresponsive",
-    emoji: "🔴",
+    label: "CRITICAL",
+    icon: AlertTriangle,
     variant: "destructive" as const,
-    bgClass: "bg-gradient-to-br from-red-50 via-red-100 to-red-200 border-red-200",
-    badgeClass: "bg-red-100 text-red-700 border-red-200",
-    dot: "bg-red-500",
+    cardClass: "glass-card border-2 border-destructive/50 hover:border-destructive hover:shadow-[0_0_30px_hsl(var(--destructive)/0.3)] animate-pulse",
+    badgeClass: "bg-gradient-to-r from-destructive to-red-500 text-destructive-foreground",
+    glowClass: "shadow-[0_0_20px_hsl(var(--destructive)/0.5)]",
   },
 };
 
@@ -46,53 +41,57 @@ export function DriverStatusCard({ driverName, status, lastAlert }: DriverStatus
   return (
     <Card
       className={`
-        ${config.bgClass} border-2 rounded-2xl transition-all duration-300
-        hover:shadow-xl hover:scale-[1.04] group
+        ${config.cardClass} transition-all duration-500 hover:scale-105 group overflow-hidden
       `}
-      style={detailFont}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-4 relative">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span
-              className={`bg-white rounded-full p-2 shadow border border-gray-100 transition-all duration-300 group-hover:scale-110`}
-            >
-              <User className="h-6 w-6 text-gray-400" />
-            </span>
-            <span
-              className="font-bold text-lg text-gray-900"
-              style={nameFont}
-            >
-              {driverName}
-            </span>
+          <div className="flex items-center space-x-4">
+            <div className={`glass rounded-2xl p-3 ${config.glowClass} group-hover:scale-110 transition-all duration-300`}>
+              <User className="h-8 w-8 text-foreground" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-xl text-foreground tracking-wide">
+                {driverName}
+              </h3>
+              <p className="text-muted-foreground text-sm">Fleet Driver</p>
+            </div>
           </div>
-          <Badge
-            variant={config.variant}
-            className={`text-xs px-2 py-1 border ${config.badgeClass} font-semibold shadow-sm tracking-wide`}
-            style={statusFont}
-          >
-            <span className="mr-1">{config.emoji}</span>
-            {config.label}
-          </Badge>
+          <div className="text-right space-y-2">
+            <Badge
+              className={`${config.badgeClass} px-4 py-2 text-sm font-bold tracking-wider rounded-xl ${config.glowClass}`}
+            >
+              <config.icon className="mr-2 h-4 w-4" />
+              {config.label}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="flex items-center justify-between">
+        <div className="space-y-3">
           {lastAlert ? (
-            <div
-              className="text-xs text-gray-500 mt-1"
-              style={detailFont}
-            >
-              <span className="font-medium text-gray-700" style={statusFont}>Last alert:</span>{" "}
-              <span className="font-semibold text-gray-900" style={nameFont}>{lastAlert}</span>
+            <div className="glass rounded-lg p-3">
+              <p className="text-sm text-muted-foreground">Last Alert</p>
+              <p className="font-semibold text-foreground">{lastAlert}</p>
             </div>
           ) : (
-            <div className="text-xs text-gray-400 italic" style={detailFont}>
-              No recent alerts
+            <div className="glass rounded-lg p-3">
+              <p className="text-sm text-muted-foreground italic">No recent alerts</p>
+              <p className="font-semibold text-success">All systems normal</p>
             </div>
           )}
-          {/* Status dot removed */}
+          
+          <div className="flex gap-2">
+            <div className="glass rounded-lg p-2 flex-1 text-center">
+              <p className="text-xs text-muted-foreground">Status</p>
+              <p className="font-bold text-sm text-foreground">Active</p>
+            </div>
+            <div className="glass rounded-lg p-2 flex-1 text-center">
+              <p className="text-xs text-muted-foreground">Route</p>
+              <p className="font-bold text-sm text-foreground">A-{Math.floor(Math.random() * 100) + 1}</p>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
